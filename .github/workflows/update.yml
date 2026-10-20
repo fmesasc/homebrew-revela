@@ -1,0 +1,35 @@
+# The cask follows Revela's releases by itself: once a day (and by hand: Actions ▸ Update cask ▸ Run workflow), if
+# fmesasc/revela has a newer version than Casks/revela.rb, its .dmg is downloaded, its SHA-256 computed and the cask
+# updated and committed here. Only this repository is written (its own token): no secrets.
+name: Update cask
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Latest Revela
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=$(gh release view -R fmesasc/revela --json tagName -q .tagName)
+          new=${tag#v}
+          old=$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/revela.rb)
+          echo "cask $old · latest $new"
+          [ "$new" = "$old" ] && exit 0
+          gh release download "$tag" -R fmesasc/revela -p "Revela_${new}_universal.dmg" -O revela.dmg
+          sum=$(sha256sum revela.dmg | cut -d' ' -f1); rm revela.dmg
+          sed -i "s/^  version \".*\"$/  version \"$new\"/; s/^  sha256 \".*\"$/  sha256 \"$sum\"/" Casks/revela.rb
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Revela $new"
+          git push
