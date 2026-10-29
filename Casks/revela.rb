@@ -1,7 +1,7 @@
 # Homebrew: brew install --cask fmesasc/revela/revela  (tap: github.com/fmesasc/homebrew-revela, this file in Casks/)
 cask "revela" do
-  version "0.4.86"
-  sha256 "29bb44f4ce917fe02ef62ceddd9e0365ab55155519b63a26b644ffa191ed6145"
+  version "0.4.88"
+  sha256 "255381b5f8e5aaf07e9f18b1fd6e9c777cace23b39044883fbd2cee11aff5b6f"
 
   url "https://github.com/fmesasc/revela/releases/download/v#{version}/Revela_#{version}_universal.dmg",
       verified: "github.com/fmesasc/revela/"
